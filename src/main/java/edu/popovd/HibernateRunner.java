@@ -1,5 +1,6 @@
 package edu.popovd;
 
+import edu.popovd.entity.Role;
 import edu.popovd.entity.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -37,6 +38,7 @@ public class HibernateRunner {
                     .lastname("Popov")
                     .birthDate(LocalDate.of(1999, 7, 9))
                     .age(24)
+                    .role(Role.ADMIN)
                     .build();
             session.persist(user);
 
