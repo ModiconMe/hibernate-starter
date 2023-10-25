@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /**
  * Сущности Hibernate должны быть POJO
@@ -32,4 +34,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    private String info;
 }
