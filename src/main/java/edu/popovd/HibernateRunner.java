@@ -1,5 +1,7 @@
 package edu.popovd;
 
+import edu.popovd.converter.BirthdayConverter;
+import edu.popovd.entity.Birthday;
 import edu.popovd.entity.Role;
 import edu.popovd.entity.User;
 import org.hibernate.Session;
@@ -25,6 +27,7 @@ public class HibernateRunner {
         Configuration configuration = new Configuration();
 //        configuration.addAnnotatedClass(User.class);
         configuration.setPhysicalNamingStrategy(new CamelCaseToUnderscoresNamingStrategy());
+        configuration.addAttributeConverter(new BirthdayConverter(), true);
         configuration.configure();
 
         try (SessionFactory sessionFactory = configuration.buildSessionFactory();
@@ -36,8 +39,7 @@ public class HibernateRunner {
                     .username("popovd")
                     .firstname("Dima")
                     .lastname("Popov")
-                    .birthDate(LocalDate.of(1999, 7, 9))
-                    .age(24)
+                    .birthDate(new Birthday(LocalDate.of(1999, 7, 9)))
                     .role(Role.ADMIN)
                     .build();
             session.persist(user);
