@@ -1,5 +1,7 @@
 package edu.popovd;
 
+import edu.popovd.entity.Birthday;
+import edu.popovd.entity.PersonalInfo;
 import edu.popovd.entity.User;
 import edu.popovd.util.HibernateUtil;
 import org.hibernate.Session;
@@ -9,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 
 public class HibernateRunner {
 
@@ -16,9 +19,10 @@ public class HibernateRunner {
 
     public static void main(String[] args) throws SQLException {
         User user1 = User.builder()
-                .username("ivan112@gmail.com")
-                .firstname("Ivan")
-                .lastname("Ivanov")
+                .username("ivan119@gmail.com")
+                .personalInfo(new PersonalInfo(
+                        "Ivan", "Ivanov", new Birthday(LocalDate.now())
+                ))
                 .build();
         log.info("User entity is in transient state, object: {}", user1);
 
@@ -30,7 +34,7 @@ public class HibernateRunner {
                 Transaction transaction = session1.beginTransaction();
                 log.trace("Transaction is created, {}", transaction);
 
-                session1.merge(user1);
+                session1.persist(user1);
                 log.trace("User is in persist state: {}, session: {}", user1, session1);
 
                 session1.getTransaction().commit();
