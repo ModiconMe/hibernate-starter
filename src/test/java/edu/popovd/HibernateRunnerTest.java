@@ -1,13 +1,17 @@
 package edu.popovd;
 
+import edu.popovd.entity.Birthday;
 import edu.popovd.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Table;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -15,14 +19,29 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 class HibernateRunnerTest {
+
+    @Test
+    void checkGetReflectionApi() throws SQLException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchFieldException {
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = preparedStatement.getResultSet();
+        resultSet.getString("username");
+        resultSet.getString("lastname");
+
+        Class<User> userClass = User.class;
+        Constructor<User> constructor = userClass.getConstructor();
+        User user = constructor.newInstance();
+        Field usernameField = userClass.getDeclaredField("username");
+        usernameField.setAccessible(true);
+        usernameField.set(user, resultSet.getString("username"));
+    }
+
     @Test
     void checkReflectionApi() throws SQLException, IllegalAccessException {
         User user = User.builder()
                 .username("popovd")
                 .firstname("Dima")
                 .lastname("Popov")
-                .birthDate(LocalDate.of(1999, 7, 9))
-                .age(24)
+                .birthDate(new Birthday(LocalDate.of(1999, 7, 9)))
                 .build();
 
         String sql = """

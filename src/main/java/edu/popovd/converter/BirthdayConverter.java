@@ -19,6 +19,9 @@ public class BirthdayConverter implements AttributeConverter<Birthday, Date> {
 
     @Override
     public Birthday convertToEntityAttribute(Date dbData) {
+        if (dbData == null) {
+            return null;
+        }
         return new Birthday(dbData.toLocalDate());
     }
 }
