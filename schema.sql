@@ -1,11 +1,44 @@
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS company;
+DROP TABLE IF EXISTS all_sequence;
+
+CREATE TABLE company
+(
+    id   BIGSERIAL PRIMARY KEY,
+    name VARCHAR(128)
+);
 
 CREATE TABLE users
 (
-    username   VARCHAR(128) PRIMARY KEY,
+    id         BIGSERIAL PRIMARY KEY,
+    username   VARCHAR(128) UNIQUE,
     firstname  VARCHAR(128),
     lastname   VARCHAR(128),
     birth_date DATE,
     role       VARCHAR(32),
-    info       JSONB
+    info       JSONB,
+    password   VARCHAR(128),
+    company_id BIGINT REFERENCES company (id)
 );
+
+-- CREATE TABLE users
+-- (
+--     username   VARCHAR(128),
+--     firstname  VARCHAR(128),
+--     lastname   VARCHAR(128),
+--     birth_date DATE,
+--     role       VARCHAR(32),
+--     info       JSONB,
+--     PRIMARY KEY (firstname, lastname, birth_date)
+-- );
+
+
+-- для GeneratedValue.TABLE
+CREATE TABLE all_sequence
+(
+    table_name VARCHAR(32) PRIMARY KEY,
+    pk_value   BIGINT NOT NULL
+);
+
+INSERT INTO all_sequence (table_name, pk_value)
+VALUES ('users', 1);

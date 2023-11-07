@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -25,7 +26,12 @@ import org.hibernate.type.SqlTypes;
 public class User {
 
     @Id // id должен быть Serializable
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true)
     private String username;
+
     @Embedded
     @AttributeOverride(name = "birthDate", column = @Column(name = "birth_date"))
     private PersonalInfo personalInfo;
@@ -35,4 +41,14 @@ public class User {
 
     @JdbcTypeCode(SqlTypes.JSON)
     private String info;
+
+    @ColumnTransformer(write = "md5(?)")
+    // есть еще @Formula, но эта аннотация более предпочтительна, тк позволяет делать тоже самое
+    // как на запись так и на чтение
+    private String password;
+
+    @ManyToOne
+    @JoinColumn(name = "company_id") // default company_id (название сущности с маленькой буквы_id)
+    private Company company;
+
 }

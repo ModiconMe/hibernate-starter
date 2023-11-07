@@ -13,5 +13,6 @@
         <property name="format_sql">true</property>
 
         <mapping class="edu.popovd.entity.User"/>
+        <mapping class="edu.popovd.entity.Company"/>
     </session-factory>
 </hibernate-configuration>
