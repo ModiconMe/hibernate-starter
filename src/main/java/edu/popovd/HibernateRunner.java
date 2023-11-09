@@ -1,7 +1,9 @@
 package edu.popovd;
 
+import edu.popovd.entity.Company;
 import edu.popovd.entity.User;
 import edu.popovd.util.HibernateUtil;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
@@ -31,8 +33,12 @@ public class HibernateRunner {
                 session1.beginTransaction();
 
                 user = session1.get(User.class, 1L);
+                Company company = user.getCompany();
+                String name = company.getName();
 //                session1.persist(smartix);
 //                session1.persist(user1);
+
+                Company unproxy = Hibernate.unproxy(company, Company.class);
 
                 session1.getTransaction().commit();
             }
