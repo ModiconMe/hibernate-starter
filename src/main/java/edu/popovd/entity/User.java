@@ -1,10 +1,7 @@
 package edu.popovd.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -18,6 +15,7 @@ import org.hibernate.type.SqlTypes;
  * 5) toString
  */
 @Data
+@ToString(exclude = "company")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -47,8 +45,7 @@ public class User {
     // как на запись так и на чтение
     private String password;
 
-    @ManyToOne
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id") // default company_id (название сущности с маленькой буквы_id)
     private Company company;
-
 }
