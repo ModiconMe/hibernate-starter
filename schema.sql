@@ -21,6 +21,13 @@ CREATE TABLE users
     company_id BIGINT REFERENCES company (id)
 );
 
+CREATE TABLE profile
+(
+    user_id  BIGINT PRIMARY KEY REFERENCES users (id),
+    street   VARCHAR(128),
+    language CHAR(2)
+);
+
 -- CREATE TABLE users
 -- (
 --     username   VARCHAR(128),

@@ -14,5 +14,6 @@
 
         <mapping class="edu.popovd.entity.User"/>
         <mapping class="edu.popovd.entity.Company"/>
+        <mapping class="edu.popovd.entity.Profile"/>
     </session-factory>
 </hibernate-configuration>

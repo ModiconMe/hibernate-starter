@@ -6,6 +6,8 @@ import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.util.UUID;
+
 /**
  * Сущности Hibernate должны быть POJO
  * 1) getters + setters
@@ -29,7 +31,8 @@ public class User {
     private Long id;
 
     @Column(unique = true)
-    private String username;
+    @Builder.Default
+    private String username = UUID.randomUUID().toString();
 
     @Embedded
     @AttributeOverride(name = "birthDate", column = @Column(name = "birth_date"))
@@ -49,4 +52,7 @@ public class User {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
     private Company company;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Profile profile;
 }
