@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS profile;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS company;
 DROP TABLE IF EXISTS all_sequence;
@@ -23,10 +24,18 @@ CREATE TABLE users
 
 CREATE TABLE profile
 (
-    user_id  BIGINT PRIMARY KEY REFERENCES users (id),
+    id       BIGSERIAL PRIMARY KEY,
     street   VARCHAR(128),
-    language CHAR(2)
+    language CHAR(2),
+    user_id  BIGINT REFERENCES users (id) NOT NULL UNIQUE
 );
+
+-- CREATE TABLE profile
+-- (
+--     user_id  BIGINT PRIMARY KEY REFERENCES users (id),
+--     street   VARCHAR(128),
+--     language CHAR(2)
+-- );
 
 -- CREATE TABLE users
 -- (

@@ -180,20 +180,19 @@ class HibernateRunnerTest {
         @Cleanup Session session = sessionFactory.openSession();
         session.beginTransaction();
 
-//        User user = session.get(User.class, 27L);
-//        System.out.println(user);
+        User user = session.get(User.class, 1L);
+        System.out.println(user);
 
-        User user = User.builder().build();
-
-        Profile profile = Profile.builder()
-                .street("Kolasa 18")
-                .language("RU")
-                .user(user)
-                .build();
-
-        session.persist(user);
-        profile.setUser(user);
-        session.persist(profile);
+//        User user = User.builder().build();
+//
+//        Profile profile = Profile.builder()
+//                .street("Kolasa 18")
+//                .language("RU")
+//                .user(user)
+//                .build();
+//
+//        session.persist(user);
+//        session.persist(profile);
 
         session.getTransaction().commit();
     }
