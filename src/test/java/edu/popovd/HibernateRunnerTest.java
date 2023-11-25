@@ -1,9 +1,12 @@
 package edu.popovd;
 
-import edu.popovd.entity.Birthday;
-import edu.popovd.entity.User;
+import edu.popovd.entity.*;
+import edu.popovd.util.HibernateUtil;
 import jakarta.persistence.Column;
 import jakarta.persistence.Table;
+import lombok.Cleanup;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
@@ -15,6 +18,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -39,9 +43,11 @@ class HibernateRunnerTest {
     void checkReflectionApi() throws SQLException, IllegalAccessException {
         User user = User.builder()
                 .username("popovd")
-                .firstname("Dima")
-                .lastname("Popov")
-                .birthDate(new Birthday(LocalDate.of(1999, 7, 9)))
+                .personalInfo(PersonalInfo.builder()
+                        .firstname("Dima")
+                        .lastname("popov")
+                        .birthDate(new Birthday(LocalDate.of(1999, 7, 9)))
+                        .build())
                 .build();
 
         String sql = """
@@ -71,5 +77,100 @@ class HibernateRunnerTest {
             declaredField.setAccessible(true);
             preparedStatement.setObject(1, declaredField.get(user));
         }
+    }
+
+    @Test
+    void oneToMany() {
+        // given
+        @Cleanup SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
+        @Cleanup Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        // when
+        Company company = session.get(Company.class, 1);
+        List<User> users = company.getUsers();
+
+        // then
+        session.getTransaction().commit();
+    }
+
+    @Test
+    void addUserToCompany() {
+        @Cleanup SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
+        @Cleanup Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        Company company = Company.builder()
+                .name("Uniq comp name")
+                .build();
+        User user = User.builder()
+                .personalInfo(PersonalInfo.builder()
+                        .firstname("Name")
+                        .lastname("Lastname")
+                        .birthDate(new Birthday(LocalDate.now()))
+                        .build())
+                .role(Role.USER)
+                .password("passw")
+                .build();
+
+        company.addUser(user);
+
+        session.persist(company);
+
+        session.getTransaction().commit();
+    }
+
+    @Test
+    void deleteCompany() {
+        @Cleanup SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
+        @Cleanup Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        Company company = session.get(Company.class, 27);
+        session.remove(company);
+
+        session.getTransaction().commit();
+    }
+
+    @Test
+    void selectCompany() {
+        @Cleanup SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
+        @Cleanup Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        Company company = session.get(Company.class, 25);
+//        session.detach(company);
+//        session.merge(company);
+        System.out.println(company.getUsers());
+
+        session.getTransaction().commit();
+    }
+
+    @Test
+    void checkLazyInitialization() {
+        Company company = null;
+        try (SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
+             Session session = sessionFactory.openSession()) {
+
+            session.beginTransaction();
+
+            company = session.get(Company.class, 25);
+            List<User> users = company.getUsers();
+            System.out.println(users.size());
+            session.getTransaction().commit();
+        }
+    }
+
+    @Test
+    void checkOrphanRemoval() {
+
+        @Cleanup SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
+        @Cleanup Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+        Company company = session.get(Company.class, 25);
+        company.getUsers().remove(0); // если orphanRemoval = true, то удалит из базы User при коммите
+
+        session.getTransaction().commit();
     }
 }

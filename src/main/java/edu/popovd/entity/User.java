@@ -15,7 +15,8 @@ import org.hibernate.type.SqlTypes;
  * 5) toString
  */
 @Data
-@ToString(exclude = "company")
+@ToString(of = "id")
+@EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -45,7 +46,7 @@ public class User {
     // как на запись так и на чтение
     private String password;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "company_id") // default company_id (название сущности с маленькой буквы_id)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id")
     private Company company;
 }
