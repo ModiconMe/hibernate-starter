@@ -40,9 +40,12 @@ CREATE TABLE chat
 
 CREATE TABLE users_chat
 (
-    user_id BIGINT REFERENCES users (id),
-    chat_id BIGINT REFERENCES chat (id),
-    PRIMARY KEY (user_id, chat_id)
+    id         BIGSERIAL PRIMARY KEY,
+    user_id    BIGINT       NOT NULL REFERENCES users (id),
+    chat_id    BIGINT       NOT NULL REFERENCES chat (id),
+    created_at TIMESTAMP    NOT NULL,
+    created_by VARCHAR(128) NOT NULL,
+    UNIQUE (user_id, chat_id)
 );
 
 -- CREATE TABLE profile

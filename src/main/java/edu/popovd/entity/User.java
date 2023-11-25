@@ -6,8 +6,8 @@ import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -64,11 +64,6 @@ public class User {
     private Profile profile;
 
     @Builder.Default
-    @ManyToMany
-    @JoinTable(
-            name = "users_chat",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "chat_id")
-    )
-    private Set<Chat> chats = new HashSet<>();
+    @OneToMany(mappedBy = "user")
+    private List<UserChat> userChats = new ArrayList<>();
 }
