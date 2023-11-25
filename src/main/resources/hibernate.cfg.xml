@@ -15,5 +15,6 @@
         <mapping class="edu.popovd.entity.User"/>
         <mapping class="edu.popovd.entity.Company"/>
         <mapping class="edu.popovd.entity.Profile"/>
+        <mapping class="edu.popovd.entity.Chat"/>
     </session-factory>
 </hibernate-configuration>

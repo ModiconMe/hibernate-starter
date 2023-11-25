@@ -196,4 +196,33 @@ class HibernateRunnerTest {
 
         session.getTransaction().commit();
     }
+
+    @Test
+    void checkManyToMany() {
+        @Cleanup SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
+        @Cleanup Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+//        User user = session.get(User.class, 1L);
+//        System.out.println(user);
+
+        User user = User.builder().build();
+
+        Chat chat = Chat.builder().build();
+        chat.addUser(user);
+//        user.getChats().add(chat);
+//        chat.getUsers().add(user);
+//        User user = User.builder().build();
+//
+//        Profile profile = Profile.builder()
+//                .street("Kolasa 18")
+//                .language("RU")
+//                .user(user)
+//                .build();
+//
+        session.persist(user);
+        session.persist(chat);
+
+        session.getTransaction().commit();
+    }
 }
