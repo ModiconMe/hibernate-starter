@@ -220,4 +220,22 @@ class HibernateRunnerTest {
 
         session.getTransaction().commit();
     }
+
+    @Test
+    void testLocaleInfo() {
+        @Cleanup SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
+        @Cleanup Session session = sessionFactory.openSession();
+        session.beginTransaction();
+
+//        Company company = Company.builder()
+//                .name("Uniq comp name")
+//                .build();
+//        session.persist(company);
+//        company.getLocales().add(LocaleInfo.of("RU", "Описание на русском"));
+//        company.getLocales().add(LocaleInfo.of("EN", "English description"));
+        Company company = session.get(Company.class, 1);
+        System.out.println(company.getLocales());
+
+        session.getTransaction().commit();
+    }
 }
