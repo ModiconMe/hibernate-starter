@@ -23,17 +23,18 @@ import java.util.UUID;
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+//@Builder
 @Entity
 @Table(schema = "public", name = "users")
-public class User implements BaseEntity<Long> {
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public abstract class User implements BaseEntity<Long> {
 
     @Id // id должен быть Serializable
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Column(unique = true)
-    @Builder.Default
+//    @Builder.Default
     private String username = UUID.randomUUID().toString();
 
     @Embedded
@@ -58,12 +59,11 @@ public class User implements BaseEntity<Long> {
     @OneToOne(
             mappedBy = "user",
             cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY,
-            optional = false
+            fetch = FetchType.LAZY
     )
     private Profile profile;
 
-    @Builder.Default
+    //    @Builder.Default
     @OneToMany(mappedBy = "user")
     private List<UserChat> userChats = new ArrayList<>();
 }

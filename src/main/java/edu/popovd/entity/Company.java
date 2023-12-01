@@ -5,9 +5,9 @@ import lombok.*;
 import org.hibernate.annotations.SortNatural;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 @Getter
 @Setter
@@ -30,7 +30,7 @@ public class Company implements BaseEntity<Long> {
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY, cascade = CascadeType.DETACH, orphanRemoval = true)
     @MapKey(name = "username")
     @SortNatural
-    private Map<String, User> users = new HashMap<>();
+    private SortedMap<String, User> users = new TreeMap<>();
 
     @Builder.Default
     @ElementCollection
