@@ -26,11 +26,12 @@ import java.util.UUID;
 //@Builder
 @Entity
 @Table(schema = "public", name = "users")
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "type")
 public abstract class User implements BaseEntity<Long> {
 
     @Id // id должен быть Serializable
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(unique = true)
