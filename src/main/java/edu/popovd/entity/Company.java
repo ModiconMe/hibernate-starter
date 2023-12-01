@@ -2,9 +2,12 @@ package edu.popovd.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SortNatural;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -15,7 +18,7 @@ import java.util.List;
 @Builder
 @Entity
 @Table(schema = "public", name = "company")
-public class Company {
+public class Company implements BaseEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,8 +28,9 @@ public class Company {
 
     @Builder.Default
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY, cascade = CascadeType.DETACH, orphanRemoval = true)
-    @OrderBy("username DESC, personalInfo.lastname")
-    private List<User> users = new ArrayList<>();
+    @MapKey(name = "username")
+    @SortNatural
+    private Map<String, User> users = new HashMap<>();
 
     @Builder.Default
     @ElementCollection
@@ -41,7 +45,7 @@ public class Company {
 //    private List<String> locales = new ArrayList<>();
 
     public void addUser(User user) {
-        users.add(user);
+        users.put(user.getUsername(), user);
         user.setCompany(this);
     }
 

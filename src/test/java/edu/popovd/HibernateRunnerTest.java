@@ -19,7 +19,6 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -89,7 +88,7 @@ class HibernateRunnerTest {
 
         // when
         Company company = session.get(Company.class, 1);
-        List<User> users = company.getUsers();
+//        List<User> users = company.getUsers();
 
         // then
         session.getTransaction().commit();
@@ -156,8 +155,8 @@ class HibernateRunnerTest {
             session.beginTransaction();
 
             company = session.get(Company.class, 25);
-            List<User> users = company.getUsers();
-            System.out.println(users.size());
+//            List<User> users = company.getUsers();
+//            System.out.println(users.size());
             session.getTransaction().commit();
         }
     }
@@ -234,6 +233,9 @@ class HibernateRunnerTest {
 //        company.getLocales().add(LocaleInfo.of("RU", "Описание на русском"));
 //        company.getLocales().add(LocaleInfo.of("EN", "English description"));
         Company company = session.get(Company.class, 1);
+        User user = User.builder().build();
+        session.persist(user);
+        company.addUser(user);
         System.out.println(company.getLocales());
         System.out.println(company.getUsers());
 

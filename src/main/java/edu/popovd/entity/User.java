@@ -26,7 +26,7 @@ import java.util.UUID;
 @Builder
 @Entity
 @Table(schema = "public", name = "users")
-public class User {
+public class User implements BaseEntity<Long> {
 
     @Id // id должен быть Serializable
     @GeneratedValue(strategy = GenerationType.IDENTITY)
