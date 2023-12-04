@@ -1,10 +1,16 @@
 package edu.popovd;
 
-import edu.popovd.entity.*;
+import edu.popovd.builder.CompanyBuilder;
+import edu.popovd.builder.UserBuilder;
+import edu.popovd.entity.Company;
+import edu.popovd.entity.User;
 import edu.popovd.util.HibernateUtil;
+import jakarta.persistence.FlushModeType;
 import lombok.Cleanup;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.jpa.AvailableHints;
+import org.hibernate.query.Query;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
@@ -13,7 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.UUID;
+import java.util.List;
 
 class HibernateRunnerTest {
 
@@ -236,38 +242,74 @@ class HibernateRunnerTest {
 //        session.getTransaction().commit();
 //    }
 
+//    @Test
+//    void inheritanceTablePerClass() {
+//        @Cleanup SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
+//        @Cleanup Session session = sessionFactory.openSession();
+//        session.beginTransaction();
+//
+//        Company company = Company.builder()
+//                .name("Uniq comp name")
+//                .build();
+//        session.persist(company);
+//
+//        Programmer programmer = Programmer.builder()
+//                .username(UUID.randomUUID().toString())
+//                .language(Language.GO)
+//                .company(company)
+//                .build();
+//        session.persist(programmer);
+//
+//        Manager manager = Manager.builder()
+//                .username(UUID.randomUUID().toString())
+//                .projectName("project name")
+//                .company(company)
+//                .build();
+//        session.persist(manager);
+//
+//        session.flush();
+//        session.clear();
+//
+//        Programmer programmer1 = session.get(Programmer.class, 1L);
+//        Manager manager1 = session.get(Manager.class, 2L);
+//        User user = session.get(User.class, 2L);
+//        System.out.println();
+//
+//        session.getTransaction().commit();
+//    }
+
     @Test
-    void inheritanceTablePerClass() {
+    void hqlTest() {
         @Cleanup SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
         @Cleanup Session session = sessionFactory.openSession();
         session.beginTransaction();
 
-        Company company = Company.builder()
-                .name("Uniq comp name")
-                .build();
+        Company company = new CompanyBuilder().build();
         session.persist(company);
 
-        Programmer programmer = Programmer.builder()
-                .username(UUID.randomUUID().toString())
-                .language(Language.GO)
-                .company(company)
-                .build();
-        session.persist(programmer);
-
-        Manager manager = Manager.builder()
-                .username(UUID.randomUUID().toString())
-                .projectName("project name")
-                .company(company)
-                .build();
-        session.persist(manager);
+        User user = new UserBuilder().build();
+        session.persist(user);
 
         session.flush();
         session.clear();
 
-        Programmer programmer1 = session.get(Programmer.class, 1L);
-        Manager manager1 = session.get(Manager.class, 2L);
-        User user = session.get(User.class, 2L);
-        System.out.println();
+        String queryString = """
+                select u from User u
+                 join u.company c""";
+        Query<User> hqlUser = session.createQuery(queryString, User.class);
+        List<User> namedUser = session.createNamedQuery("findUserByFirstName", User.class)
+                .setParameter("firstname", user.getPersonalInfo().getFirstname())
+                .setFlushMode(FlushModeType.COMMIT)
+                .setHint(AvailableHints.HINT_FETCH_SIZE, "50")
+                .list();
+        System.out.println(hqlUser.getResultList());
+        System.out.println(namedUser);
+
+        int id = session.createQuery("update User u set u.role = 'USER' where id = :id")
+                .setParameter("id", user.getId())
+                .executeUpdate();
+
+        List<User> nativeUsers = session.createNativeQuery("select * from users", User.class).list();
 
         session.getTransaction().commit();
     }

@@ -18,23 +18,28 @@ import java.util.UUID;
  * 4) equals and hashcode
  * 5) toString
  */
+@NamedQuery(name = "findUserByFirstName", query = """
+        select u from User u
+                         join u.company c 
+                         where u.personalInfo.firstname = :firstname
+        """)
 @Data
 @ToString(of = "id")
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor
 @AllArgsConstructor
-//@Builder
+@Builder
 @Entity
 @Table(schema = "public", name = "users")
-@Inheritance(strategy = InheritanceType.JOINED)
-public abstract class User implements BaseEntity<Long> {
+//@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+public class User implements BaseEntity<Long> {
 
     @Id // id должен быть Serializable
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(unique = true)
-//    @Builder.Default
+    @Builder.Default
     private String username = UUID.randomUUID().toString();
 
     @Embedded
@@ -63,7 +68,15 @@ public abstract class User implements BaseEntity<Long> {
     )
     private Profile profile;
 
-    //    @Builder.Default
+    @Builder.Default
     @OneToMany(mappedBy = "user")
     private List<UserChat> userChats = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "receiver")
+    private List<Payment> payments = new ArrayList<>();
+
+    public String fullName() {
+        return personalInfo.getFirstname() + " " + personalInfo.getLastname();
+    }
 }
