@@ -1,11 +1,11 @@
 package edu.popovd.dao;
 
-import edu.popovd.dto.CompanyDto;
+import com.querydsl.core.Tuple;
+import edu.popovd.dto.PaymentFilter;
 import edu.popovd.entity.Payment;
 import edu.popovd.entity.User;
 import edu.popovd.util.HibernateUtil;
 import edu.popovd.util.TestDataImporter;
-import jakarta.persistence.Tuple;
 import lombok.Cleanup;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -111,7 +111,7 @@ class UserDaoTest {
         @Cleanup Session session = sessionFactory.openSession();
         session.beginTransaction();
 
-        Double averagePaymentAmount = userDao.findAveragePaymentAmountByFirstAndLastNames(session, "Bill", "Gates");
+        Double averagePaymentAmount = userDao.findAveragePaymentAmountByFirstAndLastNames(session, new PaymentFilter("Bill", "Gates"));
         assertThat(averagePaymentAmount).isEqualTo(300.0);
 
         session.getTransaction().commit();
@@ -122,13 +122,13 @@ class UserDaoTest {
         @Cleanup Session session = sessionFactory.openSession();
         session.beginTransaction();
 
-        List<CompanyDto> results = userDao.findCompanyNamesWithAvgUserPaymentsOrderedByCompanyName(session);
+        List<com.querydsl.core.Tuple> results = userDao.findCompanyNamesWithAvgUserPaymentsOrderedByCompanyName(session);
         assertThat(results).hasSize(3);
 
-        List<String> orgNames = results.stream().map(CompanyDto::getName).collect(toList());
+        List<String> orgNames = results.stream().map(tuple -> tuple.get(0, String.class)).collect(toList());
         assertThat(orgNames).contains("Apple", "Google", "Microsoft");
 
-        List<Double> orgAvgPayments = results.stream().map(CompanyDto::getAmount).collect(toList());
+        List<Double> orgAvgPayments = results.stream().map(tuple -> tuple.get(1, Double.class)).collect(toList());
         assertThat(orgAvgPayments).contains(410.0, 400.0, 300.0);
 
         session.getTransaction().commit();
