@@ -3,6 +3,8 @@ package edu.popovd.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnTransformer;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.FetchProfile;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -18,6 +20,22 @@ import java.util.UUID;
  * 4) equals and hashcode
  * 5) toString
  */
+@FetchProfile(name = "withCompany", fetchOverrides = {
+        @FetchProfile.FetchOverride(
+                entity = User.class, association = "company", mode = FetchMode.JOIN
+        )
+})
+@NamedEntityGraph(name = "withChat",
+        attributeNodes = {
+                @NamedAttributeNode(value = "userChats", subgraph = "chats"),
+        },
+        subgraphs = {
+                @NamedSubgraph(
+                        name = "chats",
+                        attributeNodes = {
+                                @NamedAttributeNode("chat")
+                        }
+                )})
 @NamedQuery(name = "findUserByFirstName", query = """
         select u from User u
                          join u.company c 
@@ -61,19 +79,20 @@ public class User implements BaseEntity<Long> {
     @JoinColumn(name = "company_id")
     private Company company;
 
-    @OneToOne(
-            mappedBy = "user",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY
-    )
-    private Profile profile;
+//    @OneToOne(
+//            mappedBy = "user",
+//            cascade = CascadeType.ALL,
+//            fetch = FetchType.LAZY
+//    )
+//    private Profile profile;
 
     @Builder.Default
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<UserChat> userChats = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "receiver")
+//    @Fetch(FetchMode.SUBSELECT)
+    @OneToMany(mappedBy = "receiver", fetch = FetchType.LAZY)
     private List<Payment> payments = new ArrayList<>();
 
     public String fullName() {

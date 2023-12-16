@@ -18,6 +18,7 @@ import java.util.TreeMap;
 @Builder
 @Entity
 @Table(schema = "public", name = "company")
+//@BatchSize(size = 3)
 public class Company implements BaseEntity<Long> {
 
     @Id

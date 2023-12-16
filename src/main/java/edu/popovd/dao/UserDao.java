@@ -135,11 +135,13 @@ public class UserDao {
                 .setParameter("companyName", companyName)
                 .list();
         */
-        /*
+/*
+
         HibernateCriteriaBuilder cb = session.getCriteriaBuilder();
         JpaCriteriaQuery<Payment> criteria = cb.createQuery(Payment.class);
         JpaRoot<Payment> payment = criteria.from(Payment.class);
         JpaJoin<Payment, User> users = payment.join(Payment_.receiver);
+        payment.fetch(Payment_.receiver);
         JpaJoin<User, Company> company = users.join(User_.company);
 
         criteria.select(payment).where(
@@ -150,12 +152,13 @@ public class UserDao {
                 );
 
         return session.createQuery(criteria).list();
-        */
+*/
 
         return new JPAQuery<Payment>(session)
                 .select(QPayment.payment)
                 .from(QPayment.payment)
-                .join(QPayment.payment.receiver.company)
+                .join(QPayment.payment.receiver, QUser.user)
+                .join(QUser.user.company, QCompany.company)
                 .where(QCompany.company.name.eq(companyName))
                 .fetch();
     }

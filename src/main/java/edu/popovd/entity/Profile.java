@@ -17,7 +17,7 @@ public class Profile implements BaseEntity<Long> {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -27,6 +27,6 @@ public class Profile implements BaseEntity<Long> {
 
     public void setUser(User user) {
         this.user = user;
-        user.setProfile(this);
+//        user.setProfile(this);
     }
 }

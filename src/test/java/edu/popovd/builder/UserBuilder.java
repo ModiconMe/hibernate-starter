@@ -104,6 +104,6 @@ public class UserBuilder implements GenericBuilder<User> {
 
     @Override
     public User build() {
-        return new User(id, username, personalInfo, role, info, password, company, profile, userChats, payments);
+        return new User(id, username, personalInfo, role, info, password, company, userChats, payments);
     }
 }
