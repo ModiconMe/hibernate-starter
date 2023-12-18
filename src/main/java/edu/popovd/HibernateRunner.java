@@ -1,19 +1,15 @@
 package edu.popovd;
 
+import edu.popovd.entity.Payment;
+import edu.popovd.entity.Profile;
 import edu.popovd.entity.User;
-import edu.popovd.entity.UserChat;
 import edu.popovd.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.graph.GraphSemantic;
-import org.hibernate.graph.RootGraph;
-import org.hibernate.graph.SubGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
 
 public class HibernateRunner {
 
@@ -21,32 +17,37 @@ public class HibernateRunner {
 
     public static void main(String[] args) throws SQLException {
         try (SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
-             Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-//            session.enableFetchProfile("withCompany");
+             Session session = sessionFactory.openSession();
+             Session session1 = sessionFactory.openSession();
+        ) {
 
-            RootGraph<User> userGraph = session.createEntityGraph(User.class);
-            userGraph.addAttributeNodes("userChats");
-            SubGraph<UserChat> userChatsSubgraph = userGraph.addSubgraph("userChats", UserChat.class);
-            userChatsSubgraph.addAttributeNodes("chat");
+//            session.doWork(connection -> connection.setAutoCommit(true));
 
-//            RootGraph<?> graph = session.getEntityGraph("withChat");
+//            TestDataImporter.importData(sessionFactory);
 
-            Map<String, Object> props = Map.of(GraphSemantic.LOAD.getJakartaHintName(), userGraph);
-            session.find(User.class, 1L, props);
+//                session.createQuery("select p from Payment p", Payment.class)
+//                        .setLockMode(LockModeType.PESSIMISTIC_FORCE_INCREMENT)
+//                        .setHint(AvailableSettings.JAKARTA_LOCK_TIMEOUT, 5000)
+//                        .setReadOnly(true)
+//                        .setHint(AvailableHints.HINT_READ_ONLY, true)
+//                        .list();
+//            session.setDefaultReadOnly(true);
+//            session.beginTransaction();
 
-//            User user = session.get(User.class, 1L);
-//            System.out.println(user.getPayments().size());
-//            System.out.println(user.getCompany().getName());
+            Payment payment1 = session.find(Payment.class, 1L);
+            payment1.setAmount(payment1.getAmount() + 10); // не полетит запрос на обновление
+//            session.persist(payment1);
+//            session.flush();
+
+            Profile profile = Profile.builder()
+                    .user(session.find(User.class, 1L))
+                    .language("ru")
+                    .street("street")
+                    .build();
+            session.persist(profile);
 //
-            List<User> users = session.createQuery("select u from User u", User.class)
-                    .setHint(GraphSemantic.LOAD.getJakartaHintName(), userGraph)
-                    .list();
-            users.forEach(user -> System.out.println(user.getPayments().size()));
-            users.forEach(user -> System.out.println(user.getCompany().getName()));
+//            session.getTransaction().commit();
 
-
-            session.getTransaction().commit();
         }
     }
 }
