@@ -7,6 +7,7 @@ import org.hibernate.SessionFactory;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.UUID;
 
 public class TestDataImporter {
 
@@ -47,6 +48,17 @@ public class TestDataImporter {
         savePayment(session, dianeGreene, 300);
         savePayment(session, dianeGreene, 300);
         savePayment(session, dianeGreene, 300);
+
+        Chat chat1 = saveChat(session);
+        Chat chat2 = saveChat(session);
+        Chat chat3 = saveChat(session);
+
+        saveUserChat(session, steveJobs, chat1);
+        saveUserChat(session, sergeyBrin, chat1);
+        saveUserChat(session, dianeGreene, chat1);
+        saveUserChat(session, timCook, chat2);
+        saveUserChat(session, steveJobs, chat2);
+
         session.getTransaction().commit();
     }
 
@@ -84,5 +96,24 @@ public class TestDataImporter {
                 .amount(amount)
                 .build();
         session.persist(payment);
+    }
+
+    private static Chat saveChat(Session session) {
+        Chat chat = Chat.builder()
+                .name(UUID.randomUUID().toString())
+                .build();
+        session.persist(chat);
+
+        return chat;
+    }
+
+    private static UserChat saveUserChat(Session session, User user, Chat chat) {
+        UserChat userChat = UserChat.builder()
+                .chat(chat)
+                .user(user)
+                .build();
+        session.persist(userChat);
+
+        return userChat;
     }
 }

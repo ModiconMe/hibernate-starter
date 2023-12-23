@@ -1,5 +1,6 @@
 package edu.popovd.entity;
 
+import edu.popovd.listener.UserChatListener;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Table(name = "users_chat")
+@EntityListeners({UserChatListener.class})
 public class UserChat extends AuditableEntity<Long> {
 
     @Id

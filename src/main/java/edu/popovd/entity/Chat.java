@@ -24,6 +24,9 @@ public class Chat implements BaseEntity<Long> {
     private String name = UUID.randomUUID().toString();
 
     @Builder.Default
+    private Integer count = 0;
+
+    @Builder.Default
     @OneToMany(mappedBy = "chat")
     private List<UserChat> userChats = new ArrayList<>();
 }

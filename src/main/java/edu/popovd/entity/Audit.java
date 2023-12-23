@@ -6,26 +6,29 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(schema = "public", name = "payment")
-public class Payment extends AuditableEntity<Long> {
+public class Audit {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Version
-    private Long version;
+    private Serializable entityId;
 
-    @Column(nullable = false)
-    private Integer amount;
+    private String entityName;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiver_id")
-    private User receiver;
+    private String entityContent;
 
+    @Enumerated(EnumType.STRING)
+    private Operation operation;
+
+    public enum Operation {
+        SAVE, UPDATE, DELETE, INSERT
+    }
 }
