@@ -3,6 +3,8 @@ package edu.popovd.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SortNatural;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.TreeMap;
 @Entity
 @Table(schema = "public", name = "company")
 //@BatchSize(size = 3)
+@Audited
 public class Company implements BaseEntity<Long> {
 
     @Id
@@ -27,12 +30,14 @@ public class Company implements BaseEntity<Long> {
 
     private String name;
 
+    @NotAudited
     @Builder.Default
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY, cascade = CascadeType.DETACH, orphanRemoval = true)
     @MapKey(name = "username")
     @SortNatural
     private SortedMap<String, User> users = new TreeMap<>();
 
+    @NotAudited
     @Builder.Default
     @ElementCollection
     @CollectionTable(name = "company_locale", joinColumns = @JoinColumn(name = "company_id"))

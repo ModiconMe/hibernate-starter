@@ -1,9 +1,12 @@
 package edu.popovd;
 
+import edu.popovd.entity.Payment;
 import edu.popovd.util.HibernateUtil;
-import edu.popovd.util.TestDataImporter;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.AuditReaderFactory;
+import org.hibernate.envers.query.AuditEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,29 +17,33 @@ public class HibernateRunner {
     private static final Logger log = LoggerFactory.getLogger(HibernateRunner.class);
 
     public static void main(String[] args) throws SQLException {
-        try (SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
-             Session session = sessionFactory
-                     .withOptions()
-                     .openSession();
-             Session session1 = sessionFactory.openSession();
-        ) {
+        try (SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();) {
 
-//            session.doWork(connection -> connection.setAutoCommit(true));
+            try (Session session = sessionFactory.openSession()) {
+                session.beginTransaction();
 
+                Payment payment = session.find(Payment.class, 1L);
+                payment.setAmount(payment.getAmount() + 10);
 
-            session.beginTransaction();
-            TestDataImporter.importData(sessionFactory);
+                session.getTransaction().commit();
+            }
 
+            try (Session session = sessionFactory.openSession()) {
+                session.beginTransaction();
 
-//            User user = session.find(User.class, 1L);
-//
-//            Payment payment = Payment.builder()
-//                    .amount(1000)
-//                    .receiver(user)
-//                    .build();
-//            session.persist(payment);
+                AuditReader auditReader = AuditReaderFactory.get(session);
+                Payment oldPayment = auditReader.find(Payment.class, 1L, 1L);
+                System.out.println(oldPayment);
 
-            session.getTransaction().commit();
+                auditReader.createQuery()
+                        .forEntitiesAtRevision(Payment.class, 400L)
+                        .add(AuditEntity.property("amount").ge(450))
+                        .addProjection(AuditEntity.property("amount"))
+                        .addProjection(AuditEntity.id())
+                        .getResultList();
+
+                session.getTransaction().commit();
+            }
 
         }
     }

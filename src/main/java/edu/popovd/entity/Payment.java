@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 
 @Data
 @NoArgsConstructor
@@ -12,6 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Table(schema = "public", name = "payment")
+@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 public class Payment extends AuditableEntity<Long> {
 
     @Id
@@ -27,5 +30,4 @@ public class Payment extends AuditableEntity<Long> {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_id")
     private User receiver;
-
 }

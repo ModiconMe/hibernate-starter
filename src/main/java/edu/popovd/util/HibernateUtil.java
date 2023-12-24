@@ -2,6 +2,7 @@ package edu.popovd.util;
 
 import edu.popovd.converter.BirthdayConverter;
 import edu.popovd.entity.Audit;
+import edu.popovd.entity.Revision;
 import edu.popovd.entity.User;
 import edu.popovd.interceptor.GlobalInterceptor;
 import edu.popovd.listener.AuditTableListener;
@@ -20,7 +21,7 @@ public class HibernateUtil {
         Configuration configuration = buildConfiguration();
         configuration.configure();
         SessionFactory sessionFactory = configuration.buildSessionFactory();
-        registerListeners(sessionFactory);
+//        registerListeners(sessionFactory);
 
         return sessionFactory;
     }
@@ -39,6 +40,7 @@ public class HibernateUtil {
         configuration.setPhysicalNamingStrategy(new CamelCaseToUnderscoresNamingStrategy());
         configuration.addAttributeConverter(new BirthdayConverter(), true);
         configuration.addAnnotatedClass(Audit.class);
+        configuration.addAnnotatedClass(Revision.class);
         configuration.setInterceptor(new GlobalInterceptor());
         configuration.configure();
         return configuration;
