@@ -1,11 +1,11 @@
 package edu.popovd.entity;
 
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.Table;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnTransformer;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.FetchProfile;
-import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.*;
 import org.hibernate.type.SqlTypes;
 
 import java.util.ArrayList;
@@ -50,6 +50,7 @@ import java.util.UUID;
 @Entity
 @Table(schema = "public", name = "users")
 //@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "Users")
 public class User implements BaseEntity<Long> {
 
     @Id // id должен быть Serializable
@@ -88,6 +89,7 @@ public class User implements BaseEntity<Long> {
 
     @Builder.Default
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private List<UserChat> userChats = new ArrayList<>();
 
     @Builder.Default

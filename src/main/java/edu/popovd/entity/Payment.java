@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
@@ -15,6 +17,7 @@ import org.hibernate.envers.RelationTargetAuditMode;
 @Entity
 @Table(schema = "public", name = "payment")
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Payment extends AuditableEntity<Long> {
 
     @Id

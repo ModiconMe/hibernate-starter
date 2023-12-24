@@ -1,0 +1,17 @@
+<config
+        xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+        xmlns='http://www.ehcache.org/v3'
+        xsi:schemaLocation="
+            http://www.ehcache.org/v3
+            http://www.ehcache.org/schema/ehcache-core-3.7.xsd">
+
+    <cache alias="Users" uses-template="simple"/>
+    <cache alias="Companies" uses-template="simple"/>
+
+    <cache-template name="simple">
+        <expiry>
+            <ttl>10</ttl>
+        </expiry>
+        <heap>1000</heap>
+    </cache-template>
+</config>

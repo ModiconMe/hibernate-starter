@@ -1,16 +1,15 @@
 package edu.popovd;
 
 import edu.popovd.entity.Payment;
+import edu.popovd.entity.User;
 import edu.popovd.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.envers.AuditReader;
-import org.hibernate.envers.AuditReaderFactory;
-import org.hibernate.envers.query.AuditEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
+import java.util.List;
 
 public class HibernateRunner {
 
@@ -19,32 +18,42 @@ public class HibernateRunner {
     public static void main(String[] args) throws SQLException {
         try (SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();) {
 
+            User user = null;
             try (Session session = sessionFactory.openSession()) {
                 session.beginTransaction();
 
-                Payment payment = session.find(Payment.class, 1L);
-                payment.setAmount(payment.getAmount() + 10);
+                user = session.find(User.class, 1L);
+                User user1 = session.find(User.class, 1L);
+                user.getCompany().getName();
+                user.getUserChats().size();
 
-                session.getTransaction().commit();
-            }
-
-            try (Session session = sessionFactory.openSession()) {
-                session.beginTransaction();
-
-                AuditReader auditReader = AuditReaderFactory.get(session);
-                Payment oldPayment = auditReader.find(Payment.class, 1L, 1L);
-                System.out.println(oldPayment);
-
-                auditReader.createQuery()
-                        .forEntitiesAtRevision(Payment.class, 400L)
-                        .add(AuditEntity.property("amount").ge(450))
-                        .addProjection(AuditEntity.property("amount"))
-                        .addProjection(AuditEntity.id())
+                List<Payment> payments = session.createQuery("select p from Payment p where p.receiver.id = :userId", Payment.class)
+                        .setParameter("userId", 1L)
+                        .setCacheable(true)
+//                        .setCacheRegion("")
                         .getResultList();
 
+                System.out.println(sessionFactory.getStatistics().getCacheRegionStatistics("Users"));
+
                 session.getTransaction().commit();
             }
+            try (Session session = sessionFactory.openSession()) {
+                session.beginTransaction();
 
+                User user2 = session.find(User.class, 1L);
+                user2.getCompany().getName();
+                user2.getUserChats().size();
+
+
+                List<Payment> payments = session.createQuery("select p from Payment p where p.receiver.id = :userId", Payment.class)
+                        .setParameter("userId", 1L)
+                        .setCacheable(true)
+                        .getResultList();
+
+                System.out.println(sessionFactory.getStatistics().getCacheRegionStatistics("Users"));
+
+                session.getTransaction().commit();
+            }
         }
     }
 }

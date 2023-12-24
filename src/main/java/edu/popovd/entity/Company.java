@@ -2,6 +2,8 @@ package edu.popovd.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.SortNatural;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -22,6 +24,7 @@ import java.util.TreeMap;
 @Table(schema = "public", name = "company")
 //@BatchSize(size = 3)
 @Audited
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "Companies")
 public class Company implements BaseEntity<Long> {
 
     @Id
