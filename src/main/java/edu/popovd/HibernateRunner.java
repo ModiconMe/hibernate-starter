@@ -1,59 +1,65 @@
 package edu.popovd;
 
-import edu.popovd.entity.Payment;
-import edu.popovd.entity.User;
+import edu.popovd.dao.CompanyRepository;
+import edu.popovd.dao.UserRepository;
+import edu.popovd.dto.UserCreateDto;
+import edu.popovd.dto.UserReadDto;
+import edu.popovd.entity.PersonalInfo;
+import edu.popovd.entity.Role;
+import edu.popovd.interceptor.TransactionInterceptor;
+import edu.popovd.mapper.CompanyReadMapper;
+import edu.popovd.mapper.UserCreateMapper;
+import edu.popovd.mapper.UserReadMapper;
+import edu.popovd.service.UserService;
 import edu.popovd.util.HibernateUtil;
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.implementation.MethodDelegation;
+import net.bytebuddy.matcher.ElementMatchers;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Optional;
 
 public class HibernateRunner {
 
     private static final Logger log = LoggerFactory.getLogger(HibernateRunner.class);
 
-    public static void main(String[] args) throws SQLException {
-        try (SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();) {
+    public static void main(String[] args) throws SQLException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        try (SessionFactory sessionFactory = HibernateUtil.buildSessionFactory()) {
 
-            User user = null;
-            try (Session session = sessionFactory.openSession()) {
-                session.beginTransaction();
+            Session session = (Session) Proxy.newProxyInstance(SessionFactory.class.getClassLoader(), new Class[]{Session.class},
+                    (o, method, objects) -> method.invoke(sessionFactory.getCurrentSession(), objects));
 
-                user = session.find(User.class, 1L);
-                User user1 = session.find(User.class, 1L);
-                user.getCompany().getName();
-                user.getUserChats().size();
+            CompanyRepository companyRepository = new CompanyRepository(session);
+            UserRepository userRepository = new UserRepository(session);
+            CompanyReadMapper companyReadMapper = new CompanyReadMapper();
+            UserReadMapper userReadMapper = new UserReadMapper(companyReadMapper);
+            UserCreateMapper userCreateMapper = new UserCreateMapper(companyRepository);
+//            UserService userService = new UserService(userRepository, userReadMapper, userCreateMapper);
 
-                List<Payment> payments = session.createQuery("select p from Payment p where p.receiver.id = :userId", Payment.class)
-                        .setParameter("userId", 1L)
-                        .setCacheable(true)
-//                        .setCacheRegion("")
-                        .getResultList();
+            UserService userService = new ByteBuddy()
+                    .subclass(UserService.class)
+                    .method(ElementMatchers.any())
+                    .intercept(MethodDelegation.to(new TransactionInterceptor(sessionFactory)))
+                    .make()
+                    .load(UserService.class.getClassLoader())
+                    .getLoaded()
+                    .getDeclaredConstructor(UserRepository.class, UserReadMapper.class, UserCreateMapper.class)
+                    .newInstance(userRepository, userReadMapper, userCreateMapper);
 
-                System.out.println(sessionFactory.getStatistics().getCacheRegionStatistics("Users"));
+//            session.beginTransaction();
 
-                session.getTransaction().commit();
-            }
-            try (Session session = sessionFactory.openSession()) {
-                session.beginTransaction();
+            Optional<UserReadDto> byId = userService.findById(1L);
+            System.out.println(byId);
 
-                User user2 = session.find(User.class, 1L);
-                user2.getCompany().getName();
-                user2.getUserChats().size();
+            userService.create(new UserCreateDto(new PersonalInfo("Sergei", "Ivanov", /*new Birthday(LocalDate.now()))*/null), "Serega226", "{\"who\": \"me\"}", Role.USER, 1L));
 
-
-                List<Payment> payments = session.createQuery("select p from Payment p where p.receiver.id = :userId", Payment.class)
-                        .setParameter("userId", 1L)
-                        .setCacheable(true)
-                        .getResultList();
-
-                System.out.println(sessionFactory.getStatistics().getCacheRegionStatistics("Users"));
-
-                session.getTransaction().commit();
-            }
+//            session.getTransaction().commit();
         }
     }
 }

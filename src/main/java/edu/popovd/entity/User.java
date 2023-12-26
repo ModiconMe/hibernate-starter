@@ -3,6 +3,7 @@ package edu.popovd.entity;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import lombok.*;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.*;
@@ -36,6 +37,17 @@ import java.util.UUID;
                                 @NamedAttributeNode("chat")
                         }
                 )})
+@NamedEntityGraph(name = "withCompanyAndLocales",
+        attributeNodes = {
+                @NamedAttributeNode(value = "company", subgraph = "locales"),
+        },
+        subgraphs = {
+                @NamedSubgraph(
+                        name = "locales",
+                        attributeNodes = {
+                                @NamedAttributeNode("locales")
+                        }
+                )})
 @NamedQuery(name = "findUserByFirstName", query = """
         select u from User u
                          join u.company c 
@@ -61,6 +73,7 @@ public class User implements BaseEntity<Long> {
     @Builder.Default
     private String username = UUID.randomUUID().toString();
 
+    @Valid
     @Embedded
     @AttributeOverride(name = "birthDate", column = @Column(name = "birth_date"))
     private PersonalInfo personalInfo;

@@ -1,6 +1,7 @@
 package edu.popovd.entity;
 
 import jakarta.persistence.Embeddable;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,6 +23,7 @@ public class PersonalInfo implements Serializable {
     private String firstname;
     private String lastname;
 
+    @NotNull
     //    @Convert(converter = BirthdayConverter.class)
     private Birthday birthDate;
 }
